@@ -1,0 +1,9 @@
+int_mapping:
+  0: 0
+  1: 1
+class_map:
+  0: 'nothing'
+  1: 'dauca'
+color_map:
+  0: [0, 0, 0]
+  1: [220, 20, 60]

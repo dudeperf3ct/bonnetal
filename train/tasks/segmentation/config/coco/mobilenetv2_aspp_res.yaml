@@ -1,0 +1,76 @@
+#training parameters
+train:
+  loss: "xentropy"       # must be either xentropy or iou
+  max_epochs: 1000
+  max_lr: 0.005          # sgd learning rate max
+  min_lr: 0.001          # warmup initial learning rate
+  up_epochs: 1           # warmup during first XX epochs (can be float)
+  down_epochs:  20       # warmdown during second XX epochs  (can be float)
+  max_momentum: 0.7      # sgd momentum max when lr is mim
+  min_momentum: 0.5      # sgd momentum min when lr is max
+  final_decay: 0.95      # learning rate decay per epoch after initial cycle (from min lr)
+  w_decay: 0.0001        # weight decay
+  batch_size:  2         # batch size
+  report_batch: 1        # every x batches, report loss
+  report_epoch: 1        # every x epochs, report validation set
+  save_summary: False    # Summary of weight histograms for tensorboard
+  save_imgs: True        # False doesn't save anything, True saves some 
+                         # sample images (one per batch of the last calculated batch)
+                         # in log folder
+  avg_N: 3               # average the N best models
+  crop_prop:             # used for training
+    height: 512
+    width: 512
+
+# backbone parameters
+backbone:
+  name: "mobilenetv2"
+  dropout: 0.01
+  bn_d: 0.01
+  OS: 8  # output stride
+  train: True # train backbone?
+  extra:
+    width_mult: 1.0
+    shallow_feats: True # get features before the last layer (mn2)
+
+decoder:
+  name: "aspp_residual"
+  dropout: 0.01
+  bn_d: 0.01
+  train: True # train decoder?
+  extra:
+    aspp_channels: 64
+    skip_os: [4]
+    last_channels: 32
+
+# classification head parameters
+head:
+  name: "segmentation"
+  dropout: 0.01
+
+# dataset (to find parser)
+dataset:
+  name: "coco"
+  location: "/content/datasets"
+  workers: 12  # number of threads to get data
+  img_means: #rgb
+    - 0.38696613
+    - 0.4110715
+    - 0.41329755
+  img_stds: #rgb
+    - 0.05977108
+    - 0.05584759
+    - 0.06669568
+  img_prop:  # used for inference only
+    width: 3008
+    height: 3008
+    depth: 3
+  labels:
+    0: 'nothing'
+    1: 'dauca'
+  labels_w:
+    0: 1.45610953
+    1: 19.62728561
+  color_map: # bgr
+    0: [0, 0, 0]
+    1: [220, 20, 60]
