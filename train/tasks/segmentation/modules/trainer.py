@@ -359,8 +359,8 @@ class Trainer():
               if i == 0:
                 avg_backbone[key].data.zero_()
               # then sum the avg contribution
-              avg_backbone[key] += backbone[key] / \
-                  float(len(self.best_backbones))
+              avg_backbone[key] += (backbone[key] / \
+                  float(len(self.best_backbones))).long()
 
           # append current backbone to its circular buffer
           current_decoder = self.model_single.decoder.state_dict()
@@ -377,8 +377,8 @@ class Trainer():
               if i == 0:
                 avg_decoder[key].data.zero_()
               # then sum the avg contribution
-              avg_decoder[key] += decoder[key] / \
-                  float(len(self.best_decoders))
+              avg_decoder[key] += (decoder[key] / \
+                  float(len(self.best_decoders))).long()
 
           # append current head to its circular buffer
           current_head = self.model_single.head.state_dict()
