@@ -18,7 +18,7 @@ train:
                          # sample images (one per batch of the last calculated batch)
                          # in log folder
   avg_N: 3               # average the N best models
-  crop_prop:             # used for training
+  crop_prop:             # size used for training
     height: 512
     width: 512
 
@@ -62,8 +62,8 @@ dataset:
     - 0.05584759
     - 0.06669568
   img_prop:  # used for inference only
-    width: 3008
-    height: 3008
+    width: 1024   #3008 (colab cuda out of memory)
+    height: 1024  #3008 (colab cuda out of memory)
     depth: 3
   labels:
     0: 'nothing'
