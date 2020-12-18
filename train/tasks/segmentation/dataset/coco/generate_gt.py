@@ -140,7 +140,7 @@ if __name__ == '__main__':
 
         # output shape = (height, width)  
         # where each number corresponding to category(instance) that mask belongs to   
-        # mask = np.zeros((3008, 3008))
+        mask = np.zeros(( label["height"], label["width"]))
         # make remap from instances in label
         annotation = coco.loadAnns(coco.getAnnIds(imgIds=[label["id"]], iscrowd=None))
         m = []
@@ -151,10 +151,12 @@ if __name__ == '__main__':
           # and end up rounded out. Skip those objects.
           if seg.max() < 1:
             continue
-          m.append(seg)       
-          # else:
-          #   row, col = np.where(seg==1)
-          #   mask[np.ix_(row,col)] = anno['category_id']
+          if per_instance_map:
+            m.append(seg)  
+          # (height, width)
+          # # hacky way to bring all the values to 1 ?? not sure if it will work ??     
+          else:
+            mask = np.logical_or(mask, m)
 
         # output shape = (instance count, height, width)
         # where each instance count will contain binary mask
@@ -164,18 +166,18 @@ if __name__ == '__main__':
           mask = np.transpose(mask, (1, 2, 0))
         # output shape = (height, width)  
         # where each number corresponding to category(instance) that mask belongs to 
-        else:
-          # (height, width)
-          # hacky way to bring all the values to 1 ?? not sure if it will work ??
-          mask = np.sum(np.array(m), axis=0).astype(np.uint8)
-          row, col = np.where(mask>1)
-          mask[np.ix_(row,col)] = 1
+        # else:
+        #   # (height, width)
+        #   # hacky way to bring all the values to 1 ?? not sure if it will work ??
+        #   mask = np.sum(np.array(m), axis=0).astype(np.uint8)
+        #   row, col = np.where(mask>1)
+        #   mask[np.ix_(row,col)] = 1
 
         # # pass to my class defition
         # not required as our mapping has only 0 and 1
         # mask = LUT[mask]
-        # print (mask.shape)
-        # print (np.unique(mask, return_counts=True))
+        print (mask.shape)
+        print (np.unique(mask, return_counts=True))
 
         # show
         # cv2.imshow("inst_remapped", inst_remapped)
