@@ -223,7 +223,8 @@ class Trainer():
         os.makedirs(directory)
       for i, img in enumerate(rand_imgs):
         name = os.path.join(directory, str(i) + ".png")
-        cv2.imwrite(name, img)
+#         cv2.imwrite(name, img)   ##original
+        cv2.imwrite(name, img*255)  ##convert to binary map
 
   def train(self):
     # accuracy and IoU stuff
@@ -388,7 +389,6 @@ class Trainer():
 
           # now average the head
           for i, head in enumerate(self.best_heads):
-            print
             # for each weight key
             for key, val in head.items():
               # if it is the first time, zero the entry first
