@@ -95,7 +95,7 @@ def resize_and_fit(img, new_h, new_w, img_type):
 
 class MS_COCO(Dataset):
   def __init__(self, root, subset, h, w, means, stds, crop_h=None, crop_w=None):
-    self.images_root = os.path.join(root, subset)
+    self.images_root = os.path.join(root, subset, "images")
     self.labels_root = os.path.join(root, subset, subset+"_remap")
 
     self.subset = subset
