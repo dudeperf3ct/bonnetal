@@ -210,7 +210,7 @@ class MS_COCO(Dataset):
 
       # apply strong augmentations only for training set
       if self.strong_augment:
-        data = {"image": image, "label": label}
+        data = {"image": np.array(image), "label": np.array(label)}
         augmented = self.aug(**data)
         image, label = augmented["image"], augmented["label"]
 
