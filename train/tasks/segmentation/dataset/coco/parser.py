@@ -9,6 +9,7 @@ from PIL import Image
 import random
 import torchvision.transforms.functional as TF
 import cv2
+import albumentations
 
 
 '''
@@ -32,6 +33,36 @@ IMG_EXT = ['.jpg']
 
 LBL_EXT = ['.png']
 SCALES = [1.0]
+
+# strong augmentations
+def strong_augemntations(p=0.5):
+    return albumentations.Compose([
+        albumentations.RandomRotate90(),
+        albumentations.Flip(),
+        albumentations.Transpose(),
+        albumentations.OneOf([
+            albumentations.IAAAdditiveGaussianNoise(),
+            albumentations.GaussNoise(),
+        ], p=0.2),
+        albumentations.OneOf([
+            albumentations.MotionBlur(p=0.2),
+            albumentations.MedianBlur(blur_limit=3, p=0.1),
+            albumentations.Blur(blur_limit=3, p=0.1),
+        ], p=0.2),
+        albumentations.ShiftScaleRotate(shift_limit=0.0625, scale_limit=0.2, rotate_limit=45, p=0.2),
+        albumentations.OneOf([
+            albumentations.OpticalDistortion(p=0.3),
+            albumentations.GridDistortion(p=0.1),
+            albumentations.IAAPiecewiseAffine(p=0.3),
+        ], p=0.2),
+        albumentations.OneOf([
+            albumentations.CLAHE(clip_limit=2),
+            albumentations.IAASharpen(),
+            albumentations.IAAEmboss(),
+            albumentations.RandomBrightnessContrast(),
+        ], p=0.3),
+        albumentations.HueSaturationValue(p=0.3),
+    ], p=p)
 
 
 class ToLabel:
@@ -94,7 +125,7 @@ def resize_and_fit(img, new_h, new_w, img_type):
 
 
 class MS_COCO(Dataset):
-  def __init__(self, root, subset, h, w, means, stds, crop_h=None, crop_w=None):
+  def __init__(self, root, subset, h, w, means, stds, crop_h=None, crop_w=None, strong_aug=False):
     self.images_root = os.path.join(root, subset, "images")
     self.labels_root = os.path.join(root, subset, subset+"_remap")
 
@@ -105,6 +136,8 @@ class MS_COCO(Dataset):
     self.h = h
     self.means = means
     self.stds = stds
+    self.strong_augment = strong_aug
+    self.aug = strong_augemntations(p=0.5)
 
     if self.subset == 'train':
       self.crop_h = crop_h
@@ -175,14 +208,22 @@ class MS_COCO(Dataset):
       image = self.resize_crop_img(self.crop(image, i, j, h, w))
       label = self.resize_crop_lbl(self.crop(label, i, j, h, w))
 
-      # flip
-      if random.random() > 0.5:
-        image = self.h_flip(image)
-        label = self.h_flip(label)
+      # apply strong augmentations only for training set
+      if self.strong_augment:
+        data = {"image": image, "label": label}
+        augmented = self.aug(**data)
+        image, label = augmented["image"], augmented["label"]
 
-      # jitter
-      if random.random() > 0.5:
-        image = self.jitter(image)
+      # basic augmentation if strong augmentation not used
+      else:
+        # flip
+        if random.random() > 0.5:
+          image = self.h_flip(image)
+          label = self.h_flip(label)
+
+        # jitter
+        if random.random() > 0.5:
+          image = self.jitter(image)
 
       # show (set workers = 0)
       # cv2.imshow("train_img", np.array(image)[:, :, ::-1])
@@ -209,7 +250,7 @@ class MS_COCO(Dataset):
 
 class Parser():
   # standard conv, BN, relu
-  def __init__(self, img_prop, img_means, img_stds, classes, train, location=None, batch_size=None, crop_prop=None, workers=2):
+  def __init__(self, img_prop, img_means, img_stds, classes, train, location=None, batch_size=None, crop_prop=None, workers=2, strong_aug=False):
     super(Parser, self).__init__()
 
     self.img_prop = img_prop
@@ -217,6 +258,7 @@ class Parser():
     self.img_stds = img_stds
     self.classes = classes
     self.train = train
+    self.strong_aug = strong_aug
 
     if self.train:
       # if I am training, get the dataset
@@ -233,7 +275,8 @@ class Parser():
                                    means=self.img_means,
                                    stds=self.img_stds,
                                    crop_h=self.crop_prop["height"],
-                                   crop_w=self.crop_prop["width"])
+                                   crop_w=self.crop_prop["width"],
+                                   strong_aug=self.strong_aug)
 
       self.trainloader = torch.utils.data.DataLoader(self.train_dataset,
                                                      batch_size=self.batch_size,
