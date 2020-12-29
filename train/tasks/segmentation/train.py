@@ -12,7 +12,6 @@ import __init__ as booger
 
 from tasks.segmentation.modules.trainer import *
 from tasks.segmentation.modules.traceSaver import *
-from tasks.segmentation.modules.userTensorRT import *
 
 
 if __name__ == '__main__':
@@ -135,6 +134,7 @@ if __name__ == '__main__':
   
   # convert to tensorrt model
   if FLAGS.usetensorrt:
+    from tasks.segmentation.modules.userTensorRT import *
     workspace = 8000000000
     calib_path = "/content/datasets/val/images"
     print (f"Found {len(os.listdir(calib_path))} for calibration...")
