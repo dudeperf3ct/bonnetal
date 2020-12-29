@@ -26,6 +26,7 @@ from tasks.segmentation.modules.head import *
 from tasks.segmentation.modules.segmentator import *
 from tasks.segmentation.modules.colorizer import *
 from tasks.segmentation.modules.ioueval import *
+from tasks.segmentation.modules.custom_losses import *
 
 
 class Trainer():
