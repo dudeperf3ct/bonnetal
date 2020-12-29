@@ -120,11 +120,13 @@ if __name__ == '__main__':
   trainer.train()
   
   # save the trained model in onnx format
-  ts = TraceSaver(FLAGS.log, "/content/")
+  ts = TraceSaver(FLAGS.log, FLAGS.log)
   ts.export_ONNX()
   ts.export_pytorch()
   
   # convert to tensorrt model
   workspace = 8000000000
-  calib_dataset = "/content/datasets/val/images"
+  calib_path = "/content/datasets/val/images"
+  print (f"Found {len(os.listdir(calib_path))} for calibration...")
+  calib_dataset = [calib_path+x for x in os.listdir(calib_path)]
   trt = UserTensorRT(FLAGS.log, workspace, calib_dataset)
