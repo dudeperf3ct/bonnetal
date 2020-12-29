@@ -11,6 +11,9 @@ import shutil
 import __init__ as booger
 
 from tasks.segmentation.modules.trainer import *
+from tasks.segmentation.modules.traceSaver import *
+from tasks.segmentation.modules.userTensorRT import *
+
 
 if __name__ == '__main__':
   parser = argparse.ArgumentParser("./train.py")
@@ -115,3 +118,13 @@ if __name__ == '__main__':
   # create trainer and start the training
   trainer = Trainer(CFG, FLAGS.log, FLAGS.path, FLAGS.eval, FLAGS.no_batchnorm)
   trainer.train()
+  
+  # save the trained model in onnx format
+  ts = TraceSaver(FLAGS.log, "/content/")
+  ts.export_ONNX()
+  ts.export_pytorch()
+  
+  # convert to tensorrt model
+  workspace = 8000000000
+  calib_dataset = "/content/datasets/val/images"
+  trt = UserTensorRT(FLAGS.log, workspace, calib_dataset)
