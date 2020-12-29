@@ -1,7 +1,7 @@
 #training parameters
 train:
   loss: "xentropy"       # must be either xentropy or iou
-  max_epochs: 1
+  max_epochs: 3
   max_lr: 0.005          # sgd learning rate max
   min_lr: 0.001          # warmup initial learning rate
   up_epochs: 1           # warmup during first XX epochs (can be float)
@@ -10,7 +10,7 @@ train:
   min_momentum: 0.5      # sgd momentum min when lr is max
   final_decay: 0.95      # learning rate decay per epoch after initial cycle (from min lr)
   w_decay: 0.0001        # weight decay
-  batch_size:  2         # batch size
+  batch_size:  1         # batch size
   report_batch: 1        # every x batches, report loss
   report_epoch: 1        # every x epochs, report validation set
   save_summary: False    # Summary of weight histograms for tensorboard
@@ -19,8 +19,8 @@ train:
                          # in log folder
   avg_N: 3               # average the N best models
   crop_prop:             # size used for training
-    height: 512
-    width: 512
+    height: 1024
+    width: 1024
 
 # backbone parameters
 backbone:
