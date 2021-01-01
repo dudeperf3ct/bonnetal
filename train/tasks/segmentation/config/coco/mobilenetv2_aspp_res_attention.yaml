@@ -64,7 +64,7 @@ dataset:
   img_prop:  # used for inference only
     width: 1024   #3008 (colab cuda out of memory)
     height: 1024  #3008 (colab cuda out of memory)
-    depth: 3
+    depth: 1
   labels:
     0: 'nothing'
     1: 'dauca'
