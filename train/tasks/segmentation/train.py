@@ -51,13 +51,6 @@ if __name__ == '__main__':
       action='store_true',
       help='Halt batchnorm training, for smaller batch-size fine-tuning. Defaults to %(default)s',
   )
-  parser.add_argument(
-      '--usetensorrt',
-      dest='usetensorrt',
-      default=False,
-      action='store_true',
-      help='Convert to tensorrt model. Defaults to %(defaults)s',
-  )
   FLAGS, unparsed = parser.parse_known_args()
 
   # print summary of what we will do
@@ -68,7 +61,6 @@ if __name__ == '__main__':
   print("model path", FLAGS.path)
   print("eval only", FLAGS.eval)
   print("No batchnorm", FLAGS.no_batchnorm)
-  print("Use Tensorrt", FLAGS.usetensorrt)
   print("----------\n")
   print("Commit hash (training version): ", str(
       subprocess.check_output(['git', 'rev-parse', '--short', 'HEAD']).strip()))
@@ -131,12 +123,3 @@ if __name__ == '__main__':
   ts = TraceSaver(FLAGS.log, FLAGS.log)
   ts.export_ONNX()
   ts.export_pytorch()
-  
-  # convert to tensorrt model
-  if FLAGS.usetensorrt:
-    from tasks.segmentation.modules.userTensorRT import *
-    workspace = 8000000000
-    calib_path = "/content/datasets/val/images"
-    print (f"Found {len(os.listdir(calib_path))} for calibration...")
-    calib_dataset = [calib_path+x for x in os.listdir(calib_path)]
-    trt = UserTensorRT(FLAGS.log, workspace, calib_dataset)
