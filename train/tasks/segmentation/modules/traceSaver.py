@@ -86,7 +86,7 @@ class TraceSaver():
                                self.decoder_cfg,
                                self.head_cfg,
                                self.path,
-                               "_train"
+                               "_train",
                                strict=True)
 
     # CUDA speedup?
