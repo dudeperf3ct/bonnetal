@@ -79,10 +79,14 @@ class TraceSaver():
 
     # concatenate the encoder and the head
     with torch.no_grad():
+      # load the best trained weights
+      # best weights are stored in _train
+      ##https://github.com/dudeperf3ct/bonnetal/blob/0a921c3be379520e313883faa77e0a88c34df4ce/train/tasks/segmentation/modules/trainer.py#L319
       self.model = Segmentator(self.bbone_cfg,
                                self.decoder_cfg,
                                self.head_cfg,
                                self.path,
+                               "_train"
                                strict=True)
 
     # CUDA speedup?
