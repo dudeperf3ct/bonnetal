@@ -1,6 +1,6 @@
 #training parameters
 train:
-  loss: "xentropy"       # must be either xentropy or iou
+  loss: "iou"       # must be either xentropy or iou
   max_epochs: 1
   max_lr: 0.005          # sgd learning rate max
   min_lr: 0.001          # warmup initial learning rate
