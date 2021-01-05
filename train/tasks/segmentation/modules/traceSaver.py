@@ -27,6 +27,7 @@ class TraceSaver():
     # parameters
     self.path = path
     self.new_path = new_path
+    custom_w, custom_h = 1920, 1200
 
     # config from path
     try:
@@ -108,9 +109,14 @@ class TraceSaver():
     self.dummy_input = torch.randn(1, self.CFG["dataset"]["img_prop"]["depth"],
                                    self.CFG["dataset"]["img_prop"]["height"],
                                    self.CFG["dataset"]["img_prop"]["width"])
+
+    self.dummy_input1 = torch.randn(1, self.CFG["dataset"]["img_prop"]["depth"],
+                                   custom_h,
+                                   custom_w)
     # gpu?
     if torch.cuda.is_available():
       self.dummy_input = self.dummy_input.cuda()
+      self.dummy_input1 = self.dummy_input1.cuda()
 
   def export_config(self):
     # save the config file in the log folder
@@ -141,6 +147,30 @@ class TraceSaver():
 
     # Print a human readable representation of the graph
     # print(onnx.helper.printable_graph(model_onnx.graph))
+    
+  def export_dynamic_ONNX(self):
+    # convert to a dynamic ONNX traced model
+    ## NOTE: Dynamic width/height may not archive the expected performance improvement 
+    ## with some backend such as TensorRT though.
+    input_names=['input']
+    output_names=['output']
+    dynamic_axes= {'input':{0:'batch_size' , 2:'width', 3:'height'}, 
+                   'output':{0:'batch_size' , 2:'width', 3:'height'}}
+    # create profile
+    onnx_path = os.path.join(self.new_path, "model_dynamic.onnx")
+    with torch.no_grad():
+      print("Profiling model")
+      print("saving model in ", onnx_path)
+      torch.onnx.export(self.model, self.dummy_input1, onnx_path, 
+                        input_names, output_names, dynamic_axes)
+
+    # check that it worked
+    print("Checking that it all worked out")
+    model_onnx = onnx.load(onnx_path)
+    onnx.checker.check_model(model_onnx)
+
+    # Print a human readable representation of the graph
+    # print(onnx.helper.printable_graph(model_onnx.graph))
 
   def export_pytorch(self):
     # convert to Pytorch traced model
@@ -159,3 +189,4 @@ class TraceSaver():
     self.export_config()
     self.export_ONNX()
     self.export_pytorch()
+    self.export_dynamic_ONNX()
