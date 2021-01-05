@@ -121,5 +121,4 @@ if __name__ == '__main__':
   
   # save the trained model in onnx format
   ts = TraceSaver(FLAGS.log, FLAGS.log)
-  ts.export_ONNX()
-  ts.export_pytorch()
+  ts.export()
