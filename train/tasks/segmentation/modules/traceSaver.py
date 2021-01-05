@@ -150,7 +150,7 @@ class TraceSaver():
     
   def export_dynamic_ONNX(self):
     # convert to a dynamic ONNX traced model
-    ## NOTE: Dynamic width/height may not archive the expected performance improvement 
+    ## NOTE: Dynamic width/height may not achieve the expected performance improvement 
     ## with some backend such as TensorRT though.
     input_names=['input']
     output_names=['output']
