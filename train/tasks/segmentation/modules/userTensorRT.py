@@ -18,6 +18,8 @@ import tensorrt as trt
 import pycuda.autoinit
 import pycuda.driver as cuda
 TRT_LOGGER = trt.Logger(trt.Logger.VERBOSE)
+# required for TensorRT>=7.1
+network_flags = 1 << int(trt.NetworkDefinitionCreationFlag.EXPLICIT_BATCH)
 
 
 class UserTensorRT():
@@ -108,7 +110,7 @@ class UserTensorRT():
       try:
         # basic stuff for onnx parser
         self.model_path = path + "/model.onnx"
-        self.network = self.builder.create_network()
+        self.network = self.builder.create_network(network_flags)
         self.onnxparser = trt.OnnxParser(self.network, TRT_LOGGER)
         self.model = open(self.model_path, 'rb')
         self.onnxparser.parse(self.model.read())
