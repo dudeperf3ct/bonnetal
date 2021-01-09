@@ -16,7 +16,7 @@ class EntropyCalibrator(trt.IInt8EntropyCalibrator2):
     self.h = h
     self.w = w
     self.input_size = [h, w]
-    self.means = np.array(stds, dtype=np.float32)
+    self.means = np.array(means, dtype=np.float32)
     self.stds = np.array(stds, dtype=np.float32)
     assert(isinstance(calibration_files, list))
     self.calib_image_paths = calibration_files
@@ -55,7 +55,9 @@ class EntropyCalibrator(trt.IInt8EntropyCalibrator2):
   def get_batch_size(self):
     return self.batch_size
 
-  def get_batch(self, bindings, names):
+  # def get_batch(self, bindings, names):
+  # https://docs.nvidia.com/deeplearning/tensorrt/api/python_api/infer/Int8/EntropyCalibrator2.html#tensorrt.IInt8EntropyCalibrator2.get_batch
+  def get_batch(self, names):
     try:
       data = next(self.batches)
       cuda.memcpy_htod(self.device_input, data)
