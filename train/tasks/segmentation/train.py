@@ -118,7 +118,3 @@ if __name__ == '__main__':
   # create trainer and start the training
   trainer = Trainer(CFG, FLAGS.log, FLAGS.path, FLAGS.eval, FLAGS.no_batchnorm)
   trainer.train()
-  
-  # save the trained model in onnx format
-  ts = TraceSaver(FLAGS.log, FLAGS.log)
-  ts.export()
