@@ -193,4 +193,4 @@ class TraceSaver():
     self.export_config()
     self.export_ONNX()
     self.export_pytorch()
-    self.export_dynamic_ONNX()
+    #self.export_dynamic_ONNX()  --> not required we are passing height and weight in make_deploy_model.py
