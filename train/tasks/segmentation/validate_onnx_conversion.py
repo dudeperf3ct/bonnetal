@@ -95,6 +95,7 @@ def to_numpy(tensor):
     return tensor.detach().cpu().numpy() if tensor.requires_grad else tensor.cpu().numpy()
 
 img_path = 'datasets/val/images/'
+gt_path = 'datasets/val/val_remap/'
 norm = transforms.Normalize(mean=means, std=stds)
 tensorize_img = transforms.ToTensor()
 
@@ -105,6 +106,7 @@ def calibrate(tol=1e-1):
 	for p in os.listdir(img_path):
 		# h, w = 1200, 1920 ## will not work for this either
 		im = resize_and_fit(Image.open(os.path.join(img_path, p)).convert("RGB"), FLAGS.height, FLAGS.width, "RGB")
+		gt = resize_and_fit(Image.open(os.path.join(gt_path, p.replace("jpg", "png"))).convert("L"), FLAGS.height, FLAGS.width, "L")
 		x = norm(tensorize_img(im)).unsqueeze(0).to('cuda')
 
 		# pytorch results
@@ -113,7 +115,7 @@ def calibrate(tol=1e-1):
 		# compute ONNX Runtime output prediction
 		ort_inputs = {ort_session.get_inputs()[0].name: to_numpy(x)}
 		ort_outs = ort_session.run(None, ort_inputs)
-		output = np.concatenate((ort_outs[0].squeeze().argmax(0), to_numpy(torch_out).squeeze().argmax(0)), axis=1)
+		output = np.concatenate((ort_outs[0].squeeze().argmax(0), to_numpy(torch_out).squeeze().argmax(0), gt), axis=1)
 		name = os.path.join(res_path, p.split(".")[0]+f"_tol_{tol}.png")
 		cv2.imwrite(name, output*255)
 		try:
